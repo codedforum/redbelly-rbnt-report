@@ -62,7 +62,7 @@ const HTML_SECTIONS = {
   downloads: () => `
     <div class="hero reveal">${HERO_ART}<div class="htext"><h1>Downloads</h1><p class="lead">Raw deliverable files.</p></div></div>
     <div class="dl reveal">
-      <a class="btn" href="content/report.md" download>Utility report</a><a class="btn" href="content/explainer.md" download>Explainer</a>
+      <a class="btn" href="RBNT-Utility-Report.pdf" download>Report (PDF)</a><a class="btn" href="content/report.md" download>Utility report (md)</a><a class="btn" href="content/explainer.md" download>Explainer</a>
       <a class="btn" href="content/defillama.md" download>DeFiLlama kit</a><a class="btn" href="content/rwa.md" download>RWA.xyz kit</a>
       <a class="btn" href="charts/allocation.png" download>Allocation chart</a><a class="btn" href="charts/fee-distribution.png" download>Fee chart</a><a class="btn" href="charts/adoption.png" download>Adoption chart</a>
     </div>`,
