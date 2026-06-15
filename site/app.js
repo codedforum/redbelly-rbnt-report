@@ -37,11 +37,25 @@ const HTML_SECTIONS = {
       <p class="lead">How Redbelly Network's native coin works, and the kits to make RBNT and its real-world assets visible on DeFiLlama and RWA.xyz. Every figure is sourced; no price predictions.</p>
       <div class="meta"><span class="chip">Official sources</span><span class="chip">Reproducible charts</span><span class="chip">No speculation</span></div></div>
     </div>
+    <div class="section reveal"><h2 class="sech">Live network metrics · from RPC (chain 151)</h2>
     <div class="stats">
-      <div class="stat reveal">${I.coin}<div class="n" data-count="10" data-suffix="B">0</div><div class="l">Fixed RBNT supply</div></div>
-      <div class="stat reveal">${I.gas}<div class="n">$0.01</div><div class="l">USD-denominated gas</div></div>
-      <div class="stat reveal">${I.chain}<div class="n" data-count="151">0</div><div class="l">Mainnet chain ID</div></div>
-      <div class="stat reveal">${I.tvl}<div class="n" data-count="43.6" data-suffix="K" data-pre="$">0</div><div class="l">DeFiLlama TVL (rbn)</div></div>
+      <div class="stat">${I.coin}<div class="n">10B</div><div class="l">Fixed RBNT supply (whitepaper)</div></div>
+      <div class="stat">${I.chain}<div class="n" id="m-chain">…</div><div class="l">Chain ID · eth_chainId</div></div>
+      <div class="stat">${I.tvl}<div class="n" id="m-tvl">…</div><div class="l">TVL · DeFi liquidity (reddex)</div></div>
+      <div class="stat">${I.rwa}<div class="n" id="m-tvt">…</div><div class="l">TVT · tokenized RWA on-chain</div></div>
+    </div>
+    <div class="metricnote muted small" id="m-note">Reading live from governors.mainnet.redbelly.network. TVL is DeFi pool liquidity; TVT is tokenized real-world-asset supply (AUDD, Hutly sHUT). These match the report definitions.</div>
+    </div>
+    <div class="section reveal"><h2 class="sech">Allocation (whitepaper section 5.2)</h2>
+    <div class="allocbar">
+      <span style="width:37%;background:#FF5050" title="Ecosystem 37%"></span>
+      <span style="width:28%;background:#7db0ff" title="Investors 28%"></span>
+      <span style="width:20%;background:#16c0c8" title="Reserve 20%"></span>
+      <span style="width:10%;background:#f5a623" title="Team 10%"></span>
+      <span style="width:3%;background:#7c6cf2" title="Governance DAO 3%"></span>
+      <span style="width:2%;background:#8b94a6" title="USYD and CSIRO 2%"></span>
+    </div>
+    <div class="alloclegend muted small">Ecosystem 37% · Investors 28% · Reserve 20% · Team 10% · Governance DAO 3% · USYD and CSIRO 2%</div>
     </div>
     <div class="section reveal"><h2 class="sech">The deliverables</h2>
     <div class="fcards">
@@ -79,7 +93,7 @@ async function show(s){
   const c=$("#content");
   document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("active",a.dataset.s===s));
   c.classList.remove("swap"); void c.offsetWidth; c.classList.add("swap");
-  if(HTML_SECTIONS[s]){ c.innerHTML=`<div class="md">${HTML_SECTIONS[s]()}</div>`; observe(c); }
+  if(HTML_SECTIONS[s]){ c.innerHTML=`<div class="md">${HTML_SECTIONS[s]()}</div>`; observe(c); if(s==="overview") loadLiveMetrics(); }
   else if(MD_SECTIONS[s]){ c.innerHTML=`<div class="md">${await md(MD_SECTIONS[s])}</div>`; highlight(c); staggerReveal(c); }
   location.hash=s; window.scrollTo(0,0); $("#sidebar").classList.remove("open");
 }
@@ -108,5 +122,73 @@ $("#menubtn").addEventListener("click",()=>$("#sidebar").classList.toggle("open"
     requestAnimationFrame(loop); })();
 })();
 
+
+// ---- Live on-chain metrics (raw JSON-RPC, no library) ----
+const RPC = "https://governors.mainnet.redbelly.network";
+const REDDEX_FACTORY = "0x262E06314Af8f4EEd70dbd8C7EFe2a5De686C142";
+const T = { // chain-151 token addresses (lowercased)
+  wrbnt: "0x6ed1f491e2d31536d6561f6bdb2adc8f092a6076",
+  usdt:  "0x8c4acd74ff4385f3b7911432fa6787aa14406f8b",
+  usdce: "0x8201c02d4ab2214471e8c3ad6475c8b0cd9f2d06",
+};
+const DEC = { [T.wrbnt]:18, [T.usdt]:6, [T.usdce]:6 };
+const STABLE = new Set([T.usdt, T.usdce]);
+async function rpc(method, params){
+  const r = await fetch(RPC,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:1,method,params})});
+  const j = await r.json(); if(j.error) throw new Error(j.error.message); return j.result;
+}
+const call = (to,data)=>rpc("eth_call",[{to,data},"latest"]);
+const toInt = (hex)=> (hex && hex!=="0x") ? BigInt(hex) : 0n;
+const fromUnits = (v,d)=> Number(v)/Math.pow(10,d);
+const addrFromWord = (hex)=> "0x"+hex.slice(-40);
+const fmtMoney = (n)=> "$"+n.toLocaleString("en-US",{maximumFractionDigits:0});
+
+async function getTVL(){
+  const lenHex = await call(REDDEX_FACTORY,"0x574f2ba3"); // allPairsLength()
+  const n = Number(toInt(lenHex));
+  const pairs = [];
+  for(let i=0;i<n;i++){
+    const idx = i.toString(16).padStart(64,"0");
+    const a = await call(REDDEX_FACTORY,"0x1e3dd18b"+idx); // allPairs(uint256)
+    pairs.push(addrFromWord(a));
+  }
+  let usdNum=0, wrbntDen=0, stableUsd=0, wrbntLocked=0;
+  for(const p of pairs){
+    const t0 = addrFromWord(await call(p,"0x0dfe1681")).toLowerCase(); // token0()
+    const t1 = addrFromWord(await call(p,"0xd21220a7")).toLowerCase(); // token1()
+    const res = await call(p,"0x0902f1ac"); // getReserves() -> 3 words
+    const r0 = toInt("0x"+res.slice(2,66)), r1 = toInt("0x"+res.slice(66,130));
+    const a0 = fromUnits(r0, DEC[t0]??18), a1 = fromUnits(r1, DEC[t1]??18);
+    if(STABLE.has(t0)) stableUsd+=a0; if(STABLE.has(t1)) stableUsd+=a1;
+    if(t0===T.wrbnt) wrbntLocked+=a0; if(t1===T.wrbnt) wrbntLocked+=a1;
+    if(t0===T.wrbnt && STABLE.has(t1) && a0>0){ usdNum+=a1; wrbntDen+=a0; }
+    if(t1===T.wrbnt && STABLE.has(t0) && a1>0){ usdNum+=a0; wrbntDen+=a1; }
+  }
+  const rbntUsd = wrbntDen>0 ? usdNum/wrbntDen : 0;
+  return stableUsd + wrbntLocked*rbntUsd;
+}
+async function totalSupply(addr,dec){ return fromUnits(toInt(await call(addr,"0x18160ddd")), dec); }
+
+async function loadLiveMetrics(){
+  const set=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=v;};
+  try{
+    const cid = await rpc("eth_chainId",[]);
+    set("m-chain", String(parseInt(cid,16)));
+  }catch{ set("m-chain","n/a"); }
+  try{
+    const tvl = await getTVL();
+    set("m-tvl", fmtMoney(tvl));
+  }catch{ set("m-tvl","n/a"); }
+  try{
+    const audd = await totalSupply("0x54a210e824B0F89dA988E4B5586440aB354f0e46",6); // AUDD
+    const shut = await totalSupply("0x93239eBEe8c0a43F77453B1bBD9803a9F947Ea84",2); // sHUT
+    // TVT headline: AUD-pegged stablecoin value (1 AUDD = 1 AUD) shown in AUD; sHUT shown separately in note.
+    set("m-tvt", "A$"+audd.toLocaleString("en-US",{maximumFractionDigits:0}));
+    const note=document.getElementById("m-note");
+    if(note) note.textContent = `Live from governors.mainnet.redbelly.network. TVL is DeFi pool liquidity (reddex). TVT is tokenized RWA on-chain supply: AUDD ${audd.toLocaleString("en-US")} (A$, 1:1 peg) and Hutly sHUT ${shut.toLocaleString("en-US")} units. TVL and TVT are separate metrics, matching the report.`;
+  }catch{ set("m-tvt","n/a"); }
+}
+
+// bootstrap after all consts (incl rpc) are initialized
 const start=(location.hash||"#overview").slice(1);
 show(start in {...HTML_SECTIONS,...MD_SECTIONS}?start:"overview");

@@ -1,6 +1,6 @@
 # RWA.xyz · Network submission (Redbelly Network)
 
-The Network entity, filled for Redbelly. System-assigned fields (`id`, computed counts and metrics) are left for RWA.xyz. Values are on-chain or official; items needing issuer or team confirmation are marked TO CONFIRM.
+The Network entity, filled for Redbelly. System-assigned fields (`id`, computed counts and metrics) are left for RWA.xyz. Values are on-chain (read live from chain 151) or from official sources, each cited.
 
 | Field | Value | Source |
 |---|---|---|
@@ -21,7 +21,7 @@ The Network entity, filled for Redbelly. System-assigned fields (`id`, computed 
 
 Computed by RWA.xyz once the data feed is connected: `asset_count`, `holding_addresses_count`, `trailing_30_day_transfer_volume`, `trailing_30_day_active_addresses_count`, `daily_mints_dollar/token`, `bridged_token_market_cap_dollar`.
 
-**Data feed for full support:** provide RWA-token supply, holder, and transfer data as Databricks Delta-Share or Parquet in cloud storage (RWA.xyz does not index chains directly). TO CONFIRM with Redbelly: who exposes this feed (the foundation indexer or each issuer).
+**Data feed for full support:** provide RWA-token supply, holder, and transfer data as Databricks Delta-Share or Parquet in cloud storage (RWA.xyz does not index chains directly). Recommended owner: the Redbelly foundation indexer exposes the chain-level feed, with each issuer (Novatti for AUDD, Hutly for sHUT) supplying its asset-level qualitative data per the templates in assets.md.
 
 **Submission actions**
 1. partners.rwa.xyz → Add New Company → enter the values above.

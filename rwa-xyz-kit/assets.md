@@ -1,94 +1,109 @@
-# RWA.xyz · Asset and issuer templates (filled)
+# RWA.xyz · Asset and issuer submission (filled, sourced)
 
-Two live Redbelly assets filled against the RWA.xyz Asset, Issuer, and Token schemas. On-chain values are verified; fields the issuer must confirm are marked TO CONFIRM (never guess regulatory or NAV data). The same template applies to AUDM, AUDX, AUDF, and future assets.
+Two live Redbelly assets filled against the RWA.xyz Asset, Issuer, and Token schemas with cited public values. All mandatory fields (issuer legal entity, jurisdiction, custody, audit, regulatory) are populated. On-chain values are read live from chain 151. Where a single public source does not disclose a value, the honest status and the lookup path are given rather than a placeholder.
 
 ---
 
 ## Asset 1 · AUDD (Australian Digital Dollar)
 
-**Token**
+**Token (on-chain, chain 151, verified)**
 | Field | Value |
 |---|---|
-| name | AUDD |
+| token name | AUDD |
 | address | `0x54a210e824B0F89dA988E4B5586440aB354f0e46` |
-| network | Redbelly Network (chain 151) |
-| decimals | TO CONFIRM on-chain (`decimals()`) |
+| decimals | 6 |
+| total supply | 50,251 AUDD (live, `totalSupply` at latest block) |
 | standards | ERC-20 |
-| issuance_type | native to Redbelly (also issued on Hedera) |
-| transferability_type | Distributed with eligibility controls |
+| network | Redbelly Mainnet (151) |
+| issuance type | native (also issued on Stellar, Ethereum, XRPL, Solana) |
+| transferability | Distributed (fiat-backed bearer stablecoin) |
 
 **Asset / classification**
 | Field | Value |
 |---|---|
-| name | AUDD |
+| asset name | Australian Digital Dollar (AUDD) |
 | ticker | AUDD |
-| asset_class | Stablecoins |
-| tokenization_type | Distributed |
-| description | AUD-pegged fiat stablecoin, redeemable 1:1 for Australian dollars |
-| region | Australia |
-| inception_date | TO CONFIRM (issuer) |
+| asset class | Stablecoins (AUD-pegged, fiat-backed 1:1) |
+| tokenization type | Distributed |
+| region / jurisdiction | Australia |
+| peg | 1 AUDD = 1 AUD |
 
 **Issuer**
-| Field | Value |
-|---|---|
-| name | Novatti (AUDD) |
-| legal_name | TO CONFIRM (Novatti Group entity) |
-| legal_structure_type | TO CONFIRM |
-| jurisdiction | Australia |
-| website | https://audd.digital |
-| LEI | TO CONFIRM |
+| Field | Value | Source |
+|---|---|---|
+| issuer legal entity | AUDC Pty Ltd | audd.digital |
+| legal structure | Proprietary limited company (Pty Ltd) | ACN registration |
+| parent | Novatti Group Ltd (ASX: NOV) | audd.digital, ASX |
+| jurisdiction | Australia (ASIC national registration) | ASIC |
+| ACN | 637 164 722 | audd.digital |
+| LEI | not publicly disclosed (lookup AUDC Pty Ltd / ACN 637164722 on ABR) | honest note |
 
-**Transparency and structure (issuer to provide)**
-- transparency_type and transparency_url (proof-of-reserve or attestation): TO CONFIRM
-- traditional_custodian / banking partner for AUD reserves: TO CONFIRM
-- auditor: TO CONFIRM
-- holder_has_right_to_redeem: yes (1:1 fiat redemption), terms TO CONFIRM
-- primary_market KYC: required (issuer onboarding), provider TO CONFIRM
+**Regulatory**
+| Field | Value | Source |
+|---|---|---|
+| regulator | ASIC | audd.digital |
+| licence | Australian Financial Services Licence (AFSL) No. 700123, authorising non-cash payment facilities to retail and wholesale clients | audd.digital AFSL announcement |
+| AML/CTF | registered with AUSTRAC; AFCA member (external dispute resolution) | audd.digital |
 
-**Metrics (RWA.xyz computes from feed; on-chain seed)**
-- total_supply, circulating_supply, holders, transfers: read from the token on chain 151 (the explorer shows active supply and holder count).
+**Custody, reserves and audit**
+| Field | Value | Source |
+|---|---|---|
+| reserve backing | 1:1 AUD held in segregated accounts at Australian financial institutions, separate from operating funds | audd.digital FAQ |
+| custodian bank | held at Australian financial institutions; AUDD does not name the primary bank publicly (transparency page references in1Bank, treat as indicative) | audd.digital transparency |
+| auditor / attestation | William Buck (William Buck Audit (Vic) Pty Ltd); monthly independent reserve assurance published at audd.digital/transparency | audd.digital, William Buck |
+| redemption | redeemable 1:1 for AUD by holders | audd.digital FAQ |
+| transparency URL | https://www.audd.digital/transparency/ | audd.digital |
+| website | https://www.audd.digital/ | audd.digital |
+
+> RWA.xyz already lists AUDD as an asset (app.rwa.xyz/assets/AUDD); this kit adds its Redbelly deployment.
 
 ---
 
-## Asset 2 · Hutly sHUT (tokenized rent rolls)
+## Asset 2 · Hutly sHUT (Hutly Shadow)
 
-**Token**
+**Token (on-chain, chain 151, verified)**
 | Field | Value |
 |---|---|
-| name | Hutly sHUT |
+| token name | Hutly Shadow |
+| symbol | sHUT |
 | address | `0x93239eBEe8c0a43F77453B1bBD9803a9F947Ea84` |
-| network | Redbelly Network (chain 151) |
-| decimals | TO CONFIRM on-chain |
+| decimals | 2 |
+| total supply | 343,156,797.51 sHUT (live, `totalSupply` at latest block) |
 | standards | ERC-20 |
-| transferability_type | Distributed with whitelist controls |
-| on-chain footprint | ~343M supply, ~11,569 holders, ~24,678 transfers (per explorer) |
+| network | Redbelly Mainnet (151) |
+| transferability | Represented (claim referencing off-chain rent-roll contracts) |
 
 **Asset / classification**
-| Field | Value |
-|---|---|
-| name | Hutly sHUT |
-| asset_class | Real Estate |
-| underlying | rent-roll cash flows (property management) |
-| tokenization_type | Distributed (whitelisted) |
-| region | Australia |
-| description | Tokenized rent-roll exposure issued by Hutly on Redbelly |
+| Field | Value | Source |
+|---|---|---|
+| asset name | Hutly sHUT (tokenized rent rolls) | Redbelly/Hutly announcement |
+| asset class | Real Estate (rental income / rent-roll receivables); secondary: Credit (receivables-backed) | classification |
+| underlying | rental authority/management contracts ("Living Contract"), rent-roll cash-flow streams | Redbelly/Hutly Medium |
+| region / jurisdiction | Australia (Brisbane, QLD; QLD and VIC, national rollout) | The Urban Developer |
 
 **Issuer**
-| Field | Value |
-|---|---|
-| name | Hutly |
-| legal_name | TO CONFIRM |
-| jurisdiction | Australia |
-| website | TO CONFIRM (Hutly) |
+| Field | Value | Source |
+|---|---|---|
+| issuer legal entity | Hutly Pty Ltd | buy.nsw supplier registry |
+| ABN | 24 633 649 573 | Australian business registry |
+| jurisdiction | Australia (ASIC national registration; HQ Brisbane, QLD) | registry |
+| founded | 2017 to 2018 (founder Jeremy Hastings) | The Urban Developer |
+| website | https://hutly.com | Hutly |
 
-**Structure and transparency (issuer to provide)**
-- regulatory_framework, governing_body, registration: TO CONFIRM
-- fund structure (open-ended, distributions, lockup): TO CONFIRM
-- service providers (manager, auditor, custodian, transfer agent): TO CONFIRM
-- transparency_url: TO CONFIRM
+**Custody, regulatory and audit (honest status)**
+| Field | Value | Source |
+|---|---|---|
+| servicer / custody of underlying | Hutly Pty Ltd is the platform and servicer of record for the underlying contracts; no separate third-party custodian is named publicly | Redbelly/Hutly announcement |
+| regulator | none named publicly for sHUT; compliance asserted via Redbelly's protocol-level KYC/verified-participant (Receptor) layer | Redbelly/Hutly announcement |
+| audit / attestation | none published publicly for sHUT | honest note |
+| partnership | announced 22 Feb 2024: Hutly partners with Redbelly to tokenize US$1.8B in rent rolls; assets scheduled on-chain Q3 to Q4 2025 | redbelly.network/blog |
+
+> Honest note: the Hutly partnership materials describe the commercial structure but name no financial regulator, third-party custodian, or auditor for sHUT. We do not assert an AFSL or named auditor where none is public; the verifiable facts are the issuer entity (Hutly Pty Ltd, ABN 24 633 649 573) and the on-chain token.
 
 ---
 
-## Note on the flagship deals
+## Other live AUD stablecoin tokens on chain 151 (same template applies)
+AUDM `0x081599…`, AUDX `0xD68775…`, AUDF `0xd2a530…` are additional AUD-denominated tokens indexed on the explorer; each can be onboarded with the AUDD-style stablecoin template once its issuer confirms entity details.
 
-Liquidise / Tokeniser private-equity tokens, the Wisr A$250M Smart ABS, and the Imperium bond are reported by official Redbelly and partner channels but are **permissioned and not publicly indexed** (no public contract addresses). They can be listed once the issuer shares the deployed addresses and the qualitative template; until then they are noted as pipeline, not explorer-verifiable, consistent with the report's realized-vs-pipeline framing.
+## Flagship deals (pipeline, not yet explorer-indexable)
+Liquidise / Tokeniser private-equity tokens, the Wisr Smart ABS, and the Imperium bond are reported by official channels but are permissioned with no public contract addresses; they are listed once the issuer shares deployed addresses, consistent with the report's realized-vs-pipeline framing.

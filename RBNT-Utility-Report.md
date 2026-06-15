@@ -44,6 +44,15 @@ Redbelly's distinguishing design choice is **protocol-level identity**: particip
 
 ---
 
+## 3.5. Two distinct metrics: TVL and TVT
+
+To avoid the ambiguity common to RWA chains, this report separates two metrics that are often conflated, and the live site uses the same separation.
+
+- **TVL (Total Value Locked) = DeFi liquidity.** Value locked in Redbelly DeFi protocols, specifically the reddex (Uniswap V2 fork) pools. Computed from on-chain pair reserves (RPC `eth_call` on the factory `0x262E06314Af8f4EEd70dbd8C7EFe2a5De686C142` and each pair's `getReserves`). DeFiLlama, pricing only the tokens it has feeds for, reports about **$16.8K**; valuing the WRBNT leg from its own on-chain WRBNT/stablecoin pool gives about **$22.5K**. Both are reproducible from RPC; neither uses a third-party price as the primary source.
+- **TVT (Total Value Tokenized) = tokenized real-world assets.** The on-chain supply of RWA and asset-backed tokens issued on Redbelly, read from each token's `totalSupply` (RPC), independent of DeFi liquidity. Live values: **AUDD 50,251** (AUD-pegged 1:1, so A$50,251), **Hutly sHUT 343,156,797.51**, plus the AUD-variant stablecoins (AUDM, AUDX, AUDF). TVT is not DeFi liquidity and is never added to TVL.
+
+This is the same split DeFiLlama uses (DEX TVL is separate from stablecoin and asset market cap), and it is the distinction the report, the DeFiLlama kit, and the live site all apply consistently.
+
 ## 4. Token allocation and distribution
 
 The authoritative allocation is the whitepaper's (§5.2). Note that the table is published as an image in the PDF; the figures below were read from the current (2025) and v1.4 (Dec 2024) revisions, which are identical.
@@ -95,6 +104,8 @@ Two mechanisms tie usage to RBNT demand, both documented and non-speculative:
 2. **Staked bond.** Each validating node locks 100,000 RBNT. Network growth (more nodes) increases the locked, non-circulating bond base, up to the 60M-RBNT design cap. [OFFICIAL]
 
 This report makes no claim about price. It documents the **mechanical channels** (fee settlement, burn, staked lock-up) through which adoption interacts with the fixed 10B supply.
+
+**Tying it to the metrics:** institutional adoption shows up on-chain as rising **TVT** (more tokenized assets issued, for example AUDD and Hutly sHUT supply growing) and as transaction throughput. Each of those interacts with RBNT through three documented levers: every transaction's fee is **settled in RBNT** (and partly burned past the one-million-daily threshold), every validating node **bonds 100,000 RBNT**, and issuers operate through the identity-gated rails that the network secures. So the claim "institutional adoption drives RBNT demand" maps directly to metrics shown here (TVT, transactions, fees, staking), not to narrative: more issuance and activity means more RBNT consumed in fees and locked in bonds, against a fixed 10B supply. It does not imply a price outcome.
 
 ---
 

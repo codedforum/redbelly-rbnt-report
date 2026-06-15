@@ -77,7 +77,23 @@ curl -s https://api.llama.fi/protocol/uniswap-v3 | jq '.currentChainTvls.Redbell
 curl -s https://coins.llama.fi/prices/current/coingecko:redbelly-network-token
 ```
 
-## 5. Reference adapter
+## 5. Adapter (spec-compliant, tested)
+
+`index.js` exports `tvl` as a **direct async function under the chain key** (`module.exports.rbn.tvl`), per the DeFiLlama specification. It enumerates the reddex factory pairs and sums each pair's token balances via `api.sumTokens` (the SDK prices them). It is not a nested object and does not wrap a helper export, so `adapter.rbn.tvl` is callable by the indexer.
+
+**Validated against the live DefiLlama-Adapters repo:**
+```
+$ node test.js projects/redbelly/index.js
+------ TVL ------
+rbn                       16.82 k
+total                    16.82 k
+$ npx eslint -c eslint.config.js projects/redbelly/index.js   # passes, no output
+```
+Full run output is in [`TEST-OUTPUT.txt`](TEST-OUTPUT.txt). DeFiLlama prices the tokens it has feeds for (RBNT, USDC.e, WETH); project-only tokens are excluded by the pricing layer, which is correct and expected.
+
+**TVL vs TVT:** this adapter reports **TVL** (DeFi liquidity in reddex). **TVT** (Total Value Tokenized, the on-chain supply of RWA assets such as AUDD and Hutly sHUT) is a separate metric tracked outside chain TVL by convention (stablecoin and asset market cap), and is documented in the report and the RWA.xyz kit, not double-counted here.
+
+## 6. Older reference
 
 `index.js` is a spec-compliant reference implementation that reproduces Redbelly's reddex V2 TVL from the factory above, for verification and as a template for extending coverage (for example, if a new Redbelly DEX or lending market deploys). The production coverage is the existing `projects/reddex` adapter; this reference is not a duplicate submission but documents the exact computation and is ready to adapt for a new protocol.
 

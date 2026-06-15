@@ -1,0 +1,12 @@
+
+--- tvl ---
+RBNT                      11.91 k
+USDC.e                    4.90 k
+WETH                      4.00
+Total: 16.82 k 
+
+------ TVL ------
+rbn                       16.82 k
+
+total                    16.82 k 
+
